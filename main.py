@@ -7,7 +7,7 @@ def LoadData(text):
   my_file.close()
   return content_list;
 
-datalist = LoadData("b_little_bit_of_everything.in")
+datalist = LoadData("Inputs/Raw_DataSets/b_little_bit_of_everything.in")
 
 def GetIngredient():
     res = []
@@ -30,3 +30,4 @@ def GetPizzaDataList(ingredientList):
   return pizzaList
 
 pizzaList = GetPizzaDataList(ingredientList) #return list of PizzaData
+print(len(pizzaList))
