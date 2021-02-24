@@ -1,33 +1,102 @@
 import numpy as np
 
-def LoadData(text):
-  my_file = open(text, "r")
-  content = my_file.read()
-  content_list = content.split("\n")
-  my_file.close()
-  return content_list;
+teamCount = 4
+ingredientSize = 4
+activePizza = [0, 1, 2, 3]
+pizzaDataList = [[True, False, True, True],[False, False, False, True],[True, True, False, False],[False, False, True, False]]
 
-datalist = LoadData("Inputs/Raw_DataSets/b_little_bit_of_everything.in")
+uniqueModifier = 1
+repeatModifier = 0
+combSizeModifier = 1
+combTresholdModifier = 0.9
 
-def GetIngredient():
-    res = []
-    for data in datalist[1:]:
-        ingredientlist = data.split(" ")
-        [res.append(x) for x in ingredientlist[1:] if x not in res]
-    return res
+findCombination_activePizza = activePizza
 
-ingredientList = GetIngredient()
+def GetDifferentScore(pizzaA, pizzaB):
+  similarity = np.logical_and(pizzaA, pizzaB)
+  return len(pizzaA) - sum(similarity)
 
-def GetPizzaDataList(ingredientList):
-  pizzaList = []
-  for data in datalist[1:]:
-    pizza = data.split(" ")
-    ingredientData = 0
-    for ingredient in pizza[1:]:
-      ingredientData += pow(2, ingredientList.index(ingredient))
-    pizzaList.append(("{0:0" + str(len(ingredientList)) + "b}").format(ingredientData))
-    # print(("{0:0" + str(len(ingredientList)) + "b}").format(ingredientData))
-  return pizzaList
+def GetCombinationScore(combination):
 
-pizzaList = GetPizzaDataList(ingredientList) #return list of PizzaData
-print(len(pizzaList))
+  unique = pizzaDataList[combination[0]]
+  for i in range(1, len(combination)):
+    unique = np.logical_or(unique, pizzaDataList[combination[i]])
+  repeat = pizzaDataList[combination[0]]
+  for i in range(1, len(combination)):
+    repeat = np.logical_and(repeat, pizzaDataList[combination[i]])
+
+  uniqueCount = sum(unique)
+  repeatCount = sum(repeat)
+  combsSize = len(combination)
+
+  score = ((uniqueCount * uniqueModifier) - (repeatCount * repeatModifier))
+  # score = ((uniqueCount * uniqueModifier) - (repeatCount * repeatModifier)) * ((5 - combsSize) * combSizeModifier)
+
+  return score
+
+def GetBestPizza(pizzaIndex):
+  
+  bestPizza = -1
+  bestScore = 0
+
+  for i in findCombination_activePizza:
+    currentScore = GetDifferentScore(pizzaDataList[pizzaIndex], pizzaDataList[i])
+    if (bestScore < currentScore):
+      bestPizza = i
+      bestScore = currentScore
+  
+  return bestPizza
+
+def GetBestPizzaCombination(pizzaIndex):
+  findCombination_activePizza = activePizza
+
+  combination = []
+  combination.append(pizzaIndex)
+
+  findCombination_activePizza.remove(pizzaIndex)
+
+  for i in range(3):
+    bestPizza = GetBestPizza(combination[len(combination) - 1])
+    if (bestPizza != -1):
+      combination.append(bestPizza)
+      findCombination_activePizza.remove(bestPizza)
+
+      totalScore = GetCombinationScore(combination)
+
+      if (totalScore > ingredientSize * combTresholdModifier):
+        return combination
+
+  return combination
+
+def AssignPizzaToTeam():
+
+  for i in range(teamCount):
+    bestCombiantion = []
+    bestScore = 0
+
+    for j in activePizza:
+      currentCombination = GetBestPizzaCombination(j)
+      currentScore = GetCombinationScore(currentCombination)
+
+      if (len(currentCombination) > 1 and teamCount > 0):
+        if (bestScore < currentScore or (bestScore == currentScore and len(currentCombination) < len(bestCombiantion))):
+          bestScore = currentScore
+          bestCombiantion = currentCombination
+    if (len(bestCombiantion) > 0):
+      print(len(bestCombiantion), " ", end='')
+      for n in bestCombiantion:
+        print(bestCombiantion[n], " ", end='')
+      print()
+    
+    if (len(activePizza) < 2):
+      break
+
+def Main():
+
+  activePizza = range(len(pizzaDataList))
+
+  AssignPizzaToTeam()
+
+  return 0
+
+Main()
