@@ -60,6 +60,7 @@ class DataPrebs:
         file.write(str(teamNumber) + " ")
         for i in range(0, len(pizzaList)):
             file.write(str(pizzaList[i]) + " ")
+        file.write('\n')
         file.close()
 
     #finalizing output file data
@@ -149,7 +150,7 @@ def SetupDataSetType(dataType):
 
 print("Start DataPrebs")
 
-SetupDataSetType("C")
+SetupDataSetType("B")
 dp = DataPrebs()
 
 print("End DataPrebs")
@@ -164,7 +165,7 @@ activePizza = []
 uniqueModifier = 1
 repeatModifier = 0
 combSizeModifier = 1
-combTresholdModifier = 0.8
+combTresholdModifier = 0.95
 
 teamDeliverd = 0
 pizzaDeliverd = 0
@@ -180,7 +181,7 @@ def DeductTeamCount(teamNumber):
 
 def GetDifferentScore(pizzaA, pizzaB):
   similarity = np.logical_and(pizzaA, pizzaB)
-  return len(pizzaA) - sum(similarity)
+  return ingredientSize - sum(similarity)
 
 def GetCombinationScore(combination):
 
@@ -207,11 +208,14 @@ def GetBestPizza(pizzaIndex):
   bestPizza = -1
   bestScore = 0
 
+  currentPizzaData = list(dp.GetPizzaList()[pizzaIndex])
+
   for i in findCombination_activePizza:
-    currentScore = GetDifferentScore(dp.GetPizzaList()[pizzaIndex], dp.GetPizzaList()[i])
+    currentScore = GetDifferentScore(currentPizzaData, dp.GetPizzaList()[i])
     if (bestScore < currentScore):
       bestPizza = i
       bestScore = currentScore
+      currentPizzaData = np.logical_or(dp.GetPizzaList()[pizzaIndex], dp.GetPizzaList()[i])
       if (bestScore > ingredientSize * combTresholdModifier):
         break
   
@@ -233,7 +237,6 @@ def GetBestPizzaCombination(pizzaIndex):
       findCombination_activePizza.remove(bestPizza)
 
       totalScore = GetCombinationScore(combination)
-
       if (totalScore > ingredientSize * combTresholdModifier):
         return combination
 
@@ -256,7 +259,6 @@ def AssignPizzaToTeam():
         if (bestScore < currentScore or (bestScore == currentScore and len(currentCombination) < len(bestCombiantion))):
           bestScore = currentScore
           bestCombiantion = currentCombination
-          break
 
     if (len(bestCombiantion) > 0):
       dp.OutputFile(len(bestCombiantion), bestCombiantion)

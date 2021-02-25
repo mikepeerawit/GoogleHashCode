@@ -164,7 +164,7 @@ activePizza = []
 uniqueModifier = 1
 repeatModifier = 0
 combSizeModifier = 1
-combTresholdModifier = 1
+combTresholdModifier = 0.8
 
 teamDeliverd = 0
 pizzaDeliverd = 0
