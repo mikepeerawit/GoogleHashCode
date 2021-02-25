@@ -190,19 +190,11 @@ def GetCombinationScore(combination):
   unique = dp.GetPizzaList()[combination[0]]
   for i in range(1, len(combination)):
     unique = np.logical_or(unique, dp.GetPizzaList()[combination[i]])
-  repeat = dp.GetPizzaList()[combination[0]]
-  for i in range(1, len(combination)):
-    repeat = np.logical_and(repeat, dp.GetPizzaList()[combination[i]])
 
   uniqueCount = sum(unique)
-  repeatCount = sum(repeat)
-  combsSize = len(combination)
 
-  score = ((uniqueCount * uniqueModifier) - (repeatCount * repeatModifier))
-  # score = ((uniqueCount * uniqueModifier) - (repeatCount * repeatModifier)) * ((5 - combsSize) * combSizeModifier)
-
+  score = (uniqueCount)
   return score
-
 def GetBestPizza(pizzaIndex):
   
   global findCombination_activePizza
@@ -227,7 +219,7 @@ def GetBestPizza(pizzaIndex):
           break
       else:
         streak += 1
-        if (streak > float(pizzaCount * 3)/float(10)):
+        if (streak > float(pizzaCount * 1)/float(10)):
           break
   
   findCombination_activePizza[bestPizza] = False
