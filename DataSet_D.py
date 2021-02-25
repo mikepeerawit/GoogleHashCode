@@ -167,6 +167,8 @@ repeatModifier = 0
 combSizeModifier = 1
 combTresholdModifier = 0.8
 
+pizzaCount = len(dp.GetPizzaList())
+
 teamDeliverd = 0
 pizzaDeliverd = 0
 
@@ -210,16 +212,22 @@ def GetBestPizza(pizzaIndex):
 
   currentPizzaData = list(dp.GetPizzaList()[pizzaIndex])
 
+  streak = 0
+
   for i in range(len(findCombination_activePizza)):
     if (findCombination_activePizza[i] == True):
       currentScore = GetDifferentScore(currentPizzaData, dp.GetPizzaList()[i])
       if (bestScore <= currentScore):
         bestPizza = i
         bestScore = currentScore
-        
+        streak = 0
         currentPizzaData = np.logical_or(dp.GetPizzaList()[pizzaIndex], dp.GetPizzaList()[i])
         ingredientSize * combTresholdModifier
         if (bestScore > float(ingredientSize) * combTresholdModifier):
+          break
+      else:
+        streak += 1
+        if (streak > float(pizzaCount * 3)/float(10)):
           break
   
   findCombination_activePizza[bestPizza] = False
