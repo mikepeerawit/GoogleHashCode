@@ -160,7 +160,7 @@ print("End DataPrebs")
 totalTeamCount = dp.GetTotalTeamCount()
 teamCount = [dp.GetTeamCount(2), dp.GetTeamCount(3), dp.GetTeamCount(4)]
 ingredientSize = dp.GetIngredientSize()
-activePizza = [True]*len(dp.GetPizzaList())
+activePizza = []
 
 uniqueModifier = 1
 repeatModifier = 0
@@ -206,23 +206,22 @@ def GetBestPizza(pizzaIndex):
 
   streak = 0
 
-  for i in range(len(findCombination_activePizza)):
-    if (findCombination_activePizza[i] == True):
-      currentScore = GetDifferentScore(currentPizzaData, dp.GetPizzaList()[i])
-      if (bestScore <= currentScore):
-        bestPizza = i
-        bestScore = currentScore
-        streak = 0
-        currentPizzaData = np.logical_or(dp.GetPizzaList()[pizzaIndex], dp.GetPizzaList()[i])
-        ingredientSize * combTresholdModifier
-        if (bestScore > float(ingredientSize) * combTresholdModifier):
-          break
-      else:
-        streak += 1
-        if (streak > float(pizzaCount * 1)/float(10)):
-          break
+  for i in findCombination_activePizza:
+    currentScore = GetDifferentScore(currentPizzaData, dp.GetPizzaList()[i])
+    if (bestScore <= currentScore):
+      bestPizza = i
+      bestScore = currentScore
+      streak = 0
+      currentPizzaData = np.logical_or(dp.GetPizzaList()[pizzaIndex], dp.GetPizzaList()[i])
+      ingredientSize * combTresholdModifier
+      if (bestScore > float(ingredientSize) * combTresholdModifier):
+        break
+    else:
+      streak += 1
+      if (streak > float(pizzaCount * 1)/float(10)):
+        break
   
-  findCombination_activePizza[bestPizza] = False
+  findCombination_activePizza.remove(bestPizza)
 
   return bestPizza
 
@@ -250,23 +249,22 @@ def AssignPizzaToTeam():
     bestCombiantion = []
     bestScore = 0
 
-    for j in range(len(activePizza)):
-      if (activePizza[j] == True):
-        currentCombination = GetBestPizzaCombination(j)
-        currentScore = GetCombinationScore(currentCombination)
+    for j in activePizza:
+      currentCombination = GetBestPizzaCombination(j)
+      currentScore = GetCombinationScore(currentCombination)
 
-        if (len(currentCombination) > 1 and (teamCount[len(currentCombination)-2] > 0)):
-          if (bestScore < currentScore or ((bestScore == currentScore) and len(currentCombination) < len(bestCombiantion))):
-            bestScore = currentScore
-            bestCombiantion = currentCombination
-            break
+      if (len(currentCombination) > 1 and (teamCount[len(currentCombination)-2] > 0)):
+        if (bestScore < currentScore or ((bestScore == currentScore) and len(currentCombination) < len(bestCombiantion))):
+          bestScore = currentScore
+          bestCombiantion = currentCombination
+          break
 
     if (len(bestCombiantion) > 0):
       dp.OutputFile(len(bestCombiantion), bestCombiantion)
       print(len(bestCombiantion), " ", end='')
       for n in range(len(bestCombiantion)):
         print(bestCombiantion[n], " ", end='')
-        activePizza[bestCombiantion[n]] = False
+        activePizza.remove(bestCombiantion[n])
       print()
       DeductTeamCount(len(bestCombiantion))
       teamDeliverd += 1
@@ -281,7 +279,7 @@ def Main():
   dp.ResetFile()
 
   global activePizza
-  activePizza = [True]*len(dp.GetPizzaList())
+  activePizza = list(range(len(dp.GetPizzaList())))
   
   AssignPizzaToTeam()
 
