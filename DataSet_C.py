@@ -149,7 +149,7 @@ def SetupDataSetType(dataType):
 
 print("Start DataPrebs")
 
-SetupDataSetType("C")
+SetupDataSetType("B")
 dp = DataPrebs()
 
 print("End DataPrebs")
@@ -164,7 +164,7 @@ activePizza = []
 uniqueModifier = 1
 repeatModifier = 0
 combSizeModifier = 1
-combTresholdModifier = 0.8
+combTresholdModifier = 1
 
 teamDeliverd = 0
 pizzaDeliverd = 0
@@ -212,8 +212,6 @@ def GetBestPizza(pizzaIndex):
     if (bestScore < currentScore):
       bestPizza = i
       bestScore = currentScore
-      if (bestScore > ingredientSize * combTresholdModifier):
-        break
   
   return bestPizza
 
@@ -256,7 +254,6 @@ def AssignPizzaToTeam():
         if (bestScore < currentScore or (bestScore == currentScore and len(currentCombination) < len(bestCombiantion))):
           bestScore = currentScore
           bestCombiantion = currentCombination
-          break
 
     if (len(bestCombiantion) > 0):
       dp.OutputFile(len(bestCombiantion), bestCombiantion)
