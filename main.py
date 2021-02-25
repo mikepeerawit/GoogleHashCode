@@ -150,7 +150,7 @@ def SetupDataSetType(dataType):
 
 print("Start DataPrebs")
 
-SetupDataSetType("B")
+SetupDataSetType("C")
 dp = DataPrebs()
 
 print("End DataPrebs")
@@ -255,10 +255,11 @@ def AssignPizzaToTeam():
       currentCombination = GetBestPizzaCombination(j)
       currentScore = GetCombinationScore(currentCombination)
 
-      if (len(currentCombination) > 1 and dp.GetTeamCount(len(currentCombination)) > 0):
+      if (len(currentCombination) > 1 and (teamCount[len(currentCombination)-2] > 0)):
         if (bestScore < currentScore or (bestScore == currentScore and len(currentCombination) < len(bestCombiantion))):
           bestScore = currentScore
           bestCombiantion = currentCombination
+          break
 
     if (len(bestCombiantion) > 0):
       dp.OutputFile(len(bestCombiantion), bestCombiantion)
