@@ -1,6 +1,12 @@
 from collections import OrderedDict 
 
 FILE_PATH = "Inputs/Raw_DataSets/a_example"
+#FILE_PATH = "Inputs/Raw_DataSets/b_little_bit_of_everything"
+#FILE_PATH = "Inputs/Raw_DataSets/c_many_ingredients"
+#FILE_PATH = "Inputs/Raw_DataSets/d_many_pizzas"
+#FILE_PATH = "Inputs/Raw_DataSets/e_many_teams"
+
+OUTPUT_TXT = "output.txt"
 
 class DataPrebs:
     #variable member
@@ -45,7 +51,31 @@ class DataPrebs:
         self._ingredientDict.clear()
         
         file.close()
-    
+
+    #reset file data
+    def ResetFile(self):
+        file = open(OUTPUT_TXT, "w")
+        file.write("")
+
+    #write file data
+    def OutputFile(self, teamNumber, pizzaList):
+        file = open(OUTPUT_TXT, "a")
+        file.write(str(teamNumber) + " ")
+        for i in range(0, len(pizzaList)):
+            file.write(str(pizzaList[i]) + " ")
+        file.close()
+
+    #finalizing output file data
+    def FinalizingOutput(dataSet, score, teamDelivered, pizzaDelivered, mlRecursion):
+        #read file data
+        readFile = open(OUTPUT_TXT, "r")
+        content = readFile.read()
+        #write file data
+        folderPath = "Outputs/" + "DataSet_" + dataSet + "/"
+        fileName = "Output_DataSet_" + dataSet + "_" + str(score) + "_" + teamDelivered + "_" + pizzaDelivered + "_ML_" + mlRecursion + ".txt"
+        writeFile = open(folderPath + fileName, "w")
+        writeFile.write(content)
+
 
 
     #constructor
@@ -61,6 +91,9 @@ class DataPrebs:
         else :
             print("Invalid team number: " + str(teamNumber))
             return 0
+    
+    def GetTotalTeamCount(self):
+        return self._teamCount[0] + self._teamCount[1] + self._teamCount[2]
 
     def GetPizzaList(self):
         return self._pizzaList
