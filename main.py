@@ -1,13 +1,9 @@
 import numpy as np
 from collections import OrderedDict 
 
-# FILE_PATH = "Inputs/Raw_DataSets/a_example"
-FILE_PATH = "Inputs/Raw_DataSets/b_little_bit_of_everything.in"
-#FILE_PATH = "Inputs/Raw_DataSets/c_many_ingredients.in"
-#FILE_PATH = "Inputs/Raw_DataSets/d_many_pizzas.in"
-#FILE_PATH = "Inputs/Raw_DataSets/e_many_teams.in"
-
-OUTPUT_TXT = "output.txt"
+DATASET = ""
+FILE_PATH = ""
+OUTPUT_TXT = ""
 
 class DataPrebs:
     #variable member
@@ -67,14 +63,15 @@ class DataPrebs:
         file.close()
 
     #finalizing output file data
-    def FinalizingOutput(self, dataSet, score, teamDelivered, pizzaDelivered, mlRecursion):
+    def FinalizingOutput(self, dataSet, teamDelivered, pizzaDelivered, mlRecursion):
         #read file data
         readFile = open(OUTPUT_TXT, "r")
         content = readFile.read()
         #write file data
         folderPath = "Outputs/" + "DataSet_" + dataSet + "/"
-        fileName = "Output_DataSet_" + dataSet + "_" + str(score) + "_" + teamDelivered + "_" + pizzaDelivered + "_ML_" + mlRecursion + ".txt"
+        fileName = "Output_DataSet_" + dataSet + "_" + str(teamDelivered) + "_" + str(pizzaDelivered) + "_ML_" + str(mlRecursion) + ".txt"
         writeFile = open(folderPath + fileName, "w")
+        writeFile.write(str(teamDelivered)+'\n')
         writeFile.write(content)
 
 
@@ -131,7 +128,27 @@ class DataPrebs:
             for j in range(len(self._pizzaList[i]), self._ingredientSize):
                 self._pizzaList[i].append(False)            
 
+def SetupDataSetType(dataType):
+  global DATASET
+  global FILE_PATH
+  global OUTPUT_TXT
 
+  DATASET = dataType
+  OUTPUT_TXT = "Outputs/" + "DataSet_" + dataType + "/Temp" + ".txt"
+
+  if (dataType == "A"):
+    FILE_PATH = "Inputs/Raw_DataSets/a_example"
+  elif (dataType == "B"):
+    FILE_PATH = "Inputs/Raw_DataSets/b_little_bit_of_everything.in"
+  elif (dataType == "C"):
+    FILE_PATH = "Inputs/Raw_DataSets/c_many_ingredients.in"
+  elif (dataType == "D"):
+    FILE_PATH = "Inputs/Raw_DataSets/d_many_pizzas.in"
+  elif (dataType == "E"):
+    FILE_PATH = "Inputs/Raw_DataSets/e_many_teams.in"
+
+
+SetupDataSetType("A")
 dp = DataPrebs()
 
 
@@ -146,6 +163,9 @@ uniqueModifier = 1
 repeatModifier = 0
 combSizeModifier = 1
 combTresholdModifier = 1
+
+teamDeliverd = 0
+pizzaDeliverd = 0
 
 findCombination_activePizza = activePizza
 
@@ -217,6 +237,8 @@ def GetBestPizzaCombination(pizzaIndex):
 
 def AssignPizzaToTeam():
   global activePizza
+  global teamDeliverd
+  global pizzaDeliverd 
 
   for i in range(totalTeamCount):
     bestCombiantion = []
@@ -232,20 +254,27 @@ def AssignPizzaToTeam():
           bestCombiantion = currentCombination
 
     if (len(bestCombiantion) > 0):
+      dp.OutputFile(len(bestCombiantion), bestCombiantion)
       print(len(bestCombiantion), " ", end='')
       for n in range(len(bestCombiantion)):
         print(bestCombiantion[n], " ", end='')
-        # activePizza.remove(bestCombiantion[n])
+        activePizza.remove(bestCombiantion[n])
       print()
       DeductTeamCount(len(bestCombiantion))
+      teamDeliverd += 1
+      pizzaDeliverd += len(bestCombiantion)
     if (len(activePizza) < 2):
       break
 
 def Main():
+  dp.ResetFile()
+
   global activePizza
   activePizza = list(range(len(dp.GetPizzaList())))
 
   AssignPizzaToTeam()
+
+  dp.FinalizingOutput(DATASET, teamDeliverd, pizzaDeliverd, 1)
 
   return 0
 

@@ -66,7 +66,7 @@ class DataPrebs:
         file.close()
 
     #finalizing output file data
-    def FinalizingOutput(dataSet, score, teamDelivered, pizzaDelivered, mlRecursion):
+    def FinalizingOutput(self, dataSet, score, teamDelivered, pizzaDelivered, mlRecursion):
         #read file data
         readFile = open(OUTPUT_TXT, "r")
         content = readFile.read()
