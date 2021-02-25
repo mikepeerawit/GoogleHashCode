@@ -160,12 +160,12 @@ print("End DataPrebs")
 totalTeamCount = dp.GetTotalTeamCount()
 teamCount = [dp.GetTeamCount(2), dp.GetTeamCount(3), dp.GetTeamCount(4)]
 ingredientSize = dp.GetIngredientSize()
-activePizza = []
+activePizza = [True]*len(dp.GetPizzaList())
 
 uniqueModifier = 1
 repeatModifier = 0
 combSizeModifier = 1
-combTresholdModifier = 0.95
+combTresholdModifier = 0.8
 
 teamDeliverd = 0
 pizzaDeliverd = 0
@@ -180,8 +180,8 @@ def DeductTeamCount(teamNumber):
       print("Invalid team number: " + str(teamNumber))
 
 def GetDifferentScore(pizzaA, pizzaB):
-  similarity = np.logical_and(pizzaA, pizzaB)
-  return ingredientSize - sum(similarity)
+  similarity = np.logical_or(pizzaA, pizzaB)
+  return sum(similarity)
 
 def GetCombinationScore(combination):
 
@@ -210,15 +210,20 @@ def GetBestPizza(pizzaIndex):
 
   currentPizzaData = list(dp.GetPizzaList()[pizzaIndex])
 
-  for i in findCombination_activePizza:
-    currentScore = GetDifferentScore(currentPizzaData, dp.GetPizzaList()[i])
-    if (bestScore < currentScore):
-      bestPizza = i
-      bestScore = currentScore
-      currentPizzaData = np.logical_or(dp.GetPizzaList()[pizzaIndex], dp.GetPizzaList()[i])
-      if (bestScore > ingredientSize * combTresholdModifier):
-        break
+  for i in range(len(findCombination_activePizza)):
+    if (findCombination_activePizza[i] == True):
+      currentScore = GetDifferentScore(currentPizzaData, dp.GetPizzaList()[i])
+      if (bestScore <= currentScore):
+        bestPizza = i
+        bestScore = currentScore
+        
+        currentPizzaData = np.logical_or(dp.GetPizzaList()[pizzaIndex], dp.GetPizzaList()[i])
+        ingredientSize * combTresholdModifier
+        if (bestScore > float(ingredientSize) * combTresholdModifier):
+          break
   
+  findCombination_activePizza[bestPizza] = False
+
   return bestPizza
 
 def GetBestPizzaCombination(pizzaIndex):
@@ -228,17 +233,11 @@ def GetBestPizzaCombination(pizzaIndex):
   combination = []
   combination.append(pizzaIndex)
 
-  findCombination_activePizza.remove(pizzaIndex)
-
   for i in range(3):
     bestPizza = GetBestPizza(combination[len(combination) - 1])
     if (bestPizza != -1):
       combination.append(bestPizza)
-      findCombination_activePizza.remove(bestPizza)
-
       totalScore = GetCombinationScore(combination)
-      if (totalScore > ingredientSize * combTresholdModifier):
-        return combination
 
   return combination
 
@@ -251,21 +250,23 @@ def AssignPizzaToTeam():
     bestCombiantion = []
     bestScore = 0
 
-    for j in activePizza:
-      currentCombination = GetBestPizzaCombination(j)
-      currentScore = GetCombinationScore(currentCombination)
+    for j in range(len(activePizza)):
+      if (activePizza[j] == True):
+        currentCombination = GetBestPizzaCombination(j)
+        currentScore = GetCombinationScore(currentCombination)
 
-      if (len(currentCombination) > 1 and dp.GetTeamCount(len(currentCombination)) > 0):
-        if (bestScore < currentScore or (bestScore == currentScore and len(currentCombination) < len(bestCombiantion))):
-          bestScore = currentScore
-          bestCombiantion = currentCombination
+        if (len(currentCombination) > 1 and (teamCount[len(currentCombination)-2] > 0)):
+          if (bestScore < currentScore or ((bestScore == currentScore) and len(currentCombination) < len(bestCombiantion))):
+            bestScore = currentScore
+            bestCombiantion = currentCombination
+            break
 
     if (len(bestCombiantion) > 0):
       dp.OutputFile(len(bestCombiantion), bestCombiantion)
       print(len(bestCombiantion), " ", end='')
       for n in range(len(bestCombiantion)):
         print(bestCombiantion[n], " ", end='')
-        activePizza.remove(bestCombiantion[n])
+        activePizza[bestCombiantion[n]] = False
       print()
       DeductTeamCount(len(bestCombiantion))
       teamDeliverd += 1
@@ -280,8 +281,8 @@ def Main():
   dp.ResetFile()
 
   global activePizza
-  activePizza = list(range(len(dp.GetPizzaList())))
-
+  activePizza = [True]*len(dp.GetPizzaList())
+  
   AssignPizzaToTeam()
 
   dp.FinalizingOutput(DATASET, teamDeliverd, pizzaDeliverd, 1)
